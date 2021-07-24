@@ -37,7 +37,7 @@ route.get('/:_id', (req,res)=>{
    Product.findById({_id})
       .exec()
       .then(doc =>{
-         log.info(doc.name)
+         log.info(doc)
          res.status(200).json({
             response:{
                _id: doc._id,
@@ -47,13 +47,13 @@ route.get('/:_id', (req,res)=>{
             },
             request:{
                method: 'GET',
-               _id: id,
-               url: 'http://localhost:3000/products/' + id 
+               _id,
+               url: 'http://localhost:3000/products/' + _id 
             }
          })
 
       })
-      .catch(err => res.status(500).json({message: err}))
+      .catch(err => {log.err(err);res.status(500).json({message: err})})
 })
 
 route.post('/', upload.single('image'), function (req, res) {
