@@ -1,5 +1,6 @@
 const route = require('express').Router()
 const log = require('../logs/Logs')
+const helper = require('../helpers')
 const Product = require('../models/Product.model')
 const upload = require('../config.multer')
 
@@ -28,7 +29,7 @@ route.get('/', (req, res) => {
                }
             })
          })
-         .catch(err => res.status(500).json({ message: err }))
+         .catch(err => {log.err(err);res.status(500).json({ message: "An error has ocurr" })})
 })
 
 
@@ -40,7 +41,7 @@ route.get('/:_id', (req,res)=>{
          log.info(doc)
          res.status(200).json({
             response:{
-               _id: doc._id,
+               _id,
                name: doc.name,
                price: doc.price,
                image: doc.image
@@ -53,7 +54,7 @@ route.get('/:_id', (req,res)=>{
          })
 
       })
-      .catch(err => {log.err(err);res.status(500).json({message: err})})
+      .catch(err => {log.err(err);res.status(500).json({message: "The product maybe doesn't exists"})})
 })
 
 route.post('/', upload.single('image'), function (req, res) {
@@ -82,35 +83,38 @@ route.post('/', upload.single('image'), function (req, res) {
                }
             })
          })
-         .catch(err => res.status(500).json({message: err}))
+         .catch(err => res.status(500).json({message: "An error has ocurr"}))
 })
 
-route.delete('/', (req,res)=>{
+route.delete('/',(req,res)=>{
    Product.deleteMany()
       
       .then(response=>{ 
          const responseBody = { message: `DELETE all the elements [${response.n}]`, request:{type:'DELETE'}}
          if(!response.n && !response.deletedCount)
             responseBody.message =`There is not elements to DELETE`
+         helper.deleteAllFiles(response)
          res.status(200).json(responseBody)
       })
       .catch(err => res.status(500).json({ message: err }))
 }) 
 
-route.delete('/:id', (req,res)=>{
-   const {id}= req.params
-   Product.deleteOne({_id: id})
-      .then(()=>{
+route.delete('/:_id', (req,res)=>{
+   const {_id}= req.params
+   Product.findByIdAndDelete({_id})
+      .exec()
+      .then((doc)=>{
+         helper.deleteOneFile(doc.image)
          res.status(200).json({
             message: "Product DELETED successfully",
             request: {
                type: "DELETE",
-               _id: id,
-               url: "http://localhost:3000/products/"+id
+               _id,
+               url: "http://localhost:3000/products/"+_id
             },
          })
       })
-      .catch(err => res.status(500).json({ message: err }))
+      .catch(() => res.status(500).json({ message: "An error has ocurr" }))
 })
 
 module.exports = route

@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const {connect} = require('mongoose')
-const handler = require('./hanlders')
+const handler = require('./handlers')
 const Cors = require('./cors')
 // Mongoose.connect
 connect("mongodb://localhost:27017/products",{

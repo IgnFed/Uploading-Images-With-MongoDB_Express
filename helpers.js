@@ -1,7 +1,21 @@
 const fs = require('fs')
+const log = require('./logs/Logs')
+const path = require('path')
 
-exports.changeFileName = (req,file)=>{
-   const ext = file.mimetype
-   if (!req.body.filename) return `${file.fieldname} - ${Date.now()}.${ext.match(/\w+$/)}`
-   return this.date()+`${file.originalname}`
+exports.deleteAllFiles = ()=>{
+   const route = path.join(__dirname, 'public')
+      
+   const listFiles = fs.readdirSync(route)
+   const len = listFiles.length
+   if(listFiles)
+      listFiles.forEach(el => {
+         fs.rmSync(route + `/${el}`)
+      })
+   
+   log.warn(`DELETED ${len} ELEMENTS`)
+}
+
+exports.deleteOneFile = (file)=>{
+   fs.rmSync(file)
+   log.ok(`DELETED: ${file.replace('public\\', '')}`)
 }

@@ -1,5 +1,5 @@
 const multer = require("multer")
-const {processFileType}  = require("./hanlders")
+const {processFileType}  = require("./handlers")
 // const path = require('path')
 
 
